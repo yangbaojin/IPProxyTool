@@ -27,7 +27,7 @@ def validator():
         # LagouSpider,
         # BossSpider,
         # LiepinSpider,
-        JDSpider,
+        # JDSpider,
         # DoubanSpider,
     ]
 

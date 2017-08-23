@@ -7,7 +7,7 @@ import config
 
 from scrapy import Request
 from scrapy.spiders import Spider
-from sql import SqlManager
+from sql.sql_manager import SqlManager
 
 
 class Validator(Spider):

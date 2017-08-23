@@ -2,19 +2,20 @@
 
 DB_config = {
     # 'db_type': 'mongodb',
-    'db_type': 'mysql',
+    # 'db_type': 'mysql',
+    'db_type': 'sqlite',
 
     'mysql': {
         'host': 'localhost',
         'port': 3306,
         'user': 'root',
-        'password': '123456',
+        'password': '',
         'charset': 'utf8',
     },
     'redis': {
         'host': 'localhost',
         'port': 6379,
-        'password': '123456',
+        'password': '',
         'db': 1,
     },
     'mongodb':{
@@ -22,7 +23,11 @@ DB_config = {
         'port': 27017,
         'username': '',
         'password': '',
+    },
+    'sqlite':{
+            'database': 'proxytool.db',
     }
+
 }
 
 database = 'ipproxy'

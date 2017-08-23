@@ -7,7 +7,7 @@ import datetime
 
 from scrapy.spiders import Spider
 from scrapy.http import Request
-from sql import SqlManager
+from sql.sql_manager import SqlManager
 
 
 class BaseSpider(Spider):

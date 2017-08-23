@@ -8,7 +8,8 @@ import time
 import utils
 import config
 
-from sql import SqlManager
+# from sql import SqlManager
+from sql.sql_manager import SqlManager
 from ipproxytool.spiders.proxy.xicidaili import XiCiDaiLiSpider
 from ipproxytool.spiders.proxy.sixsixip import SixSixIpSpider
 from ipproxytool.spiders.proxy.ip181 import IpOneEightOneSpider
@@ -43,14 +44,14 @@ if __name__ == '__main__':
         SixSixIpSpider,
         IpOneEightOneSpider,
         KuaiDaiLiSpider,  # 在访问前加了一个 js ，反爬
-        GatherproxySpider,
-        HidemySpider,
-        ProxylistplusSpider,
-        FreeProxyListsSpider,
+        # GatherproxySpider,
+        # HidemySpider,
+        # ProxylistplusSpider,
+        # FreeProxyListsSpider,
         # PeulandSpider,  # 目标站点失效
-        UsProxySpider,
-        ProxyDBSpider,
-        ProxyRoxSpider,
+        # UsProxySpider,
+        # ProxyDBSpider,
+        # ProxyRoxSpider,
     ]
 
     while True:
