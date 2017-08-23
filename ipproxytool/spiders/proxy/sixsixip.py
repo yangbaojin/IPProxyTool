@@ -29,7 +29,7 @@ class SixSixIpSpider(BaseSpider):
     def parse_page(self, response):
         pattern = re.compile('<tr><td>(.*?)</td><td>(.*?)</td><td>(.*?)</td><td>(.*?)</td><td>(.*?)</td></tr>',
                              re.S)
-        items = re.findall(pattern, response.body)
+        items = re.findall(pattern, response.body.decode())
         for i, item in enumerate(items):
             if i >= 1:
                 proxy = Proxy()

@@ -4,9 +4,10 @@ import logging
 import utils
 import config
 import sqlite3
+import time
 
 from proxy import Proxy
-from sql import Sql
+from sql.sql import Sql
 
 
 class Sqlite(Sql):
@@ -33,15 +34,16 @@ class Sqlite(Sql):
 
     def insert_proxy(self, table_name, proxy):
         try:
-            command = ("INSERT INTO {} "
-                       "(id, ip, port, country, anonymity, https, speed, source, save_time, vali_count)"
-                       "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)".format(table_name))
-
-            data = (None, proxy.ip, proxy.port, proxy.country, proxy.anonymity,
-                    proxy.https, proxy.speed, proxy.source, None, proxy.vali_count)
-
-            self.cursor.execute(command, data)
-            return True
+            if proxy.anonymity == '1':
+                command = ("INSERT INTO {} "
+                           "(id, ip, port, country, anonymity, https, speed, source, save_time, vali_count)"
+                           "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)".format(table_name))
+                data = (None, proxy.ip, proxy.port, proxy.country, proxy.anonymity,
+                        proxy.https, proxy.speed, proxy.source, None, proxy.vali_count)
+                self.cursor.execute(command, data)
+                return True
+            else:
+                return True
         except Exception as e:
             logging.exception('mysql insert_proxy exception msg:%s' % e)
             return False
@@ -76,7 +78,7 @@ class Sqlite(Sql):
                       "where id={id};".format(
                 table_name=table_name, https=proxy.https,
                 speed=proxy.speed, id=proxy.id, vali_count=proxy.vali_count, anonymity=proxy.anonymity,
-                save_time='NOW()')
+                save_time=int(time.time()))
             logging.debug('mysql update_proxy command:%s' % command)
             self.cursor.execute(command)
         except Exception as e:
@@ -87,17 +89,17 @@ class Sqlite(Sql):
 
     def delete_old(self, table_name, day):
         try:
-            command = "DELETE FROM {table} where save_time < SUBDATE(NOW(), INTERVAL {day} DAY)".format(
-                table=config.free_ipproxy_table, day=day)
+            command = "DELETE FROM {table} where save_time < {now_time}".format(
+                table=config.free_ipproxy_table, now_time=int(time.time())-3600*24)
 
             self.cursor.execute(command)
             self.commit()
         except Exception as e:
             logging.exception('mysql delete_old exception msg:%s' % e)
 
-    def get_proxy_count(self, table_name):
+    def get_proxy_count(self, table_name, where_map):
         try:
-            command = "SELECT COUNT(*) from {}".format(table_name)
+            command = "SELECT COUNT(*) from {0} WHERE 1 {1}".format(table_name, where_map)
             count, = self.query_one(command)
             logging.debug('mysql get_proxy_count count:%s' % count)
             return count

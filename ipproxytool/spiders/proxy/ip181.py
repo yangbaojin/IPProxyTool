@@ -26,7 +26,6 @@ class IpOneEightOneSpider(BaseSpider):
 
     def parse_page(self, response):
         self.write(response.body)
-
         sel = Selector(response)
         infos = sel.xpath('//tbody/tr').extract()
         for i, info in enumerate(infos):
@@ -39,7 +38,6 @@ class IpOneEightOneSpider(BaseSpider):
             country = val.xpath('//td[6]/text()').extract_first()
             anonymity = val.xpath('//td[3]/text()').extract_first()
             https = val.xpath('//td[4]/text()').extract_first()
-
             proxy = Proxy()
             proxy.set_value(
                     ip = ip,

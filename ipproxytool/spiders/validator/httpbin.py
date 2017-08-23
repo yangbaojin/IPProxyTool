@@ -8,14 +8,13 @@ import config
 from scrapy import Request
 from .validator import Validator
 
-
 class HttpBinSpider(Validator):
     name = 'httpbin'
     concurrent_requests = 16
 
     def __init__(self, name=None, **kwargs):
         super(HttpBinSpider, self).__init__(name, **kwargs)
-        self.timeout = 20
+        self.timeout = 5
         self.urls = [
             'http://httpbin.org/get?show_env=1',
             'https://httpbin.org/get?show_env=1',
@@ -36,8 +35,8 @@ class HttpBinSpider(Validator):
     def init(self):
         super(HttpBinSpider, self).init()
 
-        r = requests.get(url=self.urls[0], timeout=20)
-        data = json.loads(r.text)
+        r = requests.get(url=self.urls[0], timeout=self.timeout)
+        data = json.loads(str(r.text))
         self.origin_ip = data.get('origin', '')
         self.log('origin ip:%s' % self.origin_ip)
 
@@ -81,7 +80,6 @@ class HttpBinSpider(Validator):
         proxy = response.meta.get('proxy_info')
         table = response.meta.get('table')
         proxy.https = response.meta.get('https')
-
         self.save_page(proxy.ip, response.body)
 
         if self.success_mark in response.text or self.success_mark is '':
@@ -90,7 +88,8 @@ class HttpBinSpider(Validator):
             self.log('proxy_info:%s' % (str(proxy)))
 
             if proxy.https == 'no':
-                data = json.loads(response.body)
+                data = json.loads(response.body.decode())
+                print(data)
                 origin = data.get('origin')
                 headers = data.get('headers')
                 x_forwarded_for = headers.get('X-Forwarded-For', None)
@@ -111,7 +110,7 @@ class HttpBinSpider(Validator):
                         self.sql.update_proxy(table_name=table, proxy=proxy)
                 else:
                     if proxy.speed < self.timeout:
-                        self.sql.insert_proxy(table_name=self.name, proxy=proxy)
+                        self.sql.insert_proxy(table_name=table, proxy=proxy)
             else:
                 self.sql.update_proxy(table_name=table, proxy=proxy)
 
