@@ -34,19 +34,31 @@ class Sqlite(Sql):
 
     def insert_proxy(self, table_name, proxy):
         try:
-            if proxy.anonymity == '1':
-                command = ("INSERT INTO {} "
-                           "(id, ip, port, country, anonymity, https, speed, source, save_time, vali_count)"
-                           "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)".format(table_name))
-                data = (None, proxy.ip, proxy.port, proxy.country, proxy.anonymity,
-                        proxy.https, proxy.speed, proxy.source, None, proxy.vali_count)
-                self.cursor.execute(command, data)
+            if self.select_proxy_ip(table_name, proxy.ip):
                 return True
-            else:
-                return True
+            command = ("INSERT INTO {} "
+                       "(id, ip, port, country, anonymity, https, speed, source, save_time, vali_count)"
+                       "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)".format(table_name))
+            data = (None, proxy.ip, proxy.port, proxy.country, proxy.anonymity,
+                    proxy.https, proxy.speed, proxy.source, int(time.time()), proxy.vali_count)
+            self.cursor.execute(command, data)
+            return True
         except Exception as e:
+            print(e)
             logging.exception('mysql insert_proxy exception msg:%s' % e)
             return False
+
+    def select_proxy_ip(self, table_name, ip):
+        try:
+            command = "SELECT * FROM {name} WHERE ip='{ip}'".format(name=table_name, ip=ip)
+            result = self.query(command)
+            if result:
+                return result
+            else:
+                return
+        except Exception as e:
+            logging.exception('mysql select_proxy exception msg:%s' % e)
+            return
 
     def select_proxy(self, table_name, **kwargs):
         filter = {}
@@ -95,11 +107,12 @@ class Sqlite(Sql):
             self.cursor.execute(command)
             self.commit()
         except Exception as e:
+            print(e)
             logging.exception('mysql delete_old exception msg:%s' % e)
 
-    def get_proxy_count(self, table_name, where_map):
+    def get_proxy_count(self, table_name):
         try:
-            command = "SELECT COUNT(*) from {0} WHERE 1 {1}".format(table_name, where_map)
+            command = "SELECT COUNT(*) from {0}".format(table_name)
             count, = self.query_one(command)
             logging.debug('mysql get_proxy_count count:%s' % count)
             return count

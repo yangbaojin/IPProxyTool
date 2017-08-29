@@ -33,7 +33,7 @@ def validator():
 
     process_list = []
     for validator in validators:
-        popen = subprocess.Popen(['python', 'run_spider.py', validator.name], shell = False)
+        popen = subprocess.Popen(['python3', 'run_spider.py', validator.name], shell = False)
         data = {
             'name': validator.name,
             'popen': popen,
@@ -53,7 +53,7 @@ def validator():
 
                 process_list.remove(process)
 
-                p = subprocess.Popen(['python', 'run_spider.py', name], shell = False)
+                p = subprocess.Popen(['python3', 'run_spider.py', name], shell = False)
                 data = {
                     'name': name,
                     'popen': p,

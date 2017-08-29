@@ -41,8 +41,8 @@ if __name__ == '__main__':
 
     spiders = [
         XiCiDaiLiSpider,
-        SixSixIpSpider,
-        IpOneEightOneSpider,
+        # SixSixIpSpider,
+        # IpOneEightOneSpider,
         # KuaiDaiLiSpider,  # 在访问前加了一个 js ，反爬
         # GatherproxySpider,
         # HidemySpider,

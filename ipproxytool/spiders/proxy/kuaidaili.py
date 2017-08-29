@@ -15,10 +15,14 @@ class KuaiDaiLiSpider(BaseSpider):
         self.urls = ['http://www.kuaidaili.com/free/inha/%s/' % i for i in range(1, 5)]
 
         self.headers = {
-            'Host': 'www.kuaidaili.com',
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:52.0) Gecko/20100101 Firefox/52.0',
-            # 'Referer': 'http://www.kuaidaili.com/free/inha/1/',
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+            "Accept-Encoding": "gzip, deflate",
+            "Accept-Language": "zh-CN,zh;q=0.8",
+            "Connection": "keep-alive",
+            "Host": "www.kuaidaili.com",
+            "Referer": "http://www.kuaidaili.com/free/inha/1/",
+            "Upgrade-Insecure-Requests": "1",
+            "User-Agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.101 Safari/537.36"
         }
 
         self.is_record_web_page = False
@@ -29,8 +33,8 @@ class KuaiDaiLiSpider(BaseSpider):
                 '<tr>\s.*?<td.*?>(.*?)</td>\s.*?<td.*?>(.*?)</td>\s.*?<td.*?>(.*?)</td>\s.*?<td.*?>('
                 '.*?)</td>\s.*?<td.*?>(.*?)</td>\s.*?<td.*?>(.*?)</td>\s.*?<td.*?>(.*?)</td>\s.*?</tr>',
                 re.S)
-        items = re.findall(pattern, response.body)
-
+        items = re.findall(pattern, response.body.decode('utf-8'))
+        # print(items)
         for item in items:
             proxy = Proxy()
             proxy.set_value(
@@ -40,5 +44,4 @@ class KuaiDaiLiSpider(BaseSpider):
                     anonymity = item[2],
                     source = self.name,
             )
-
             self.add_proxy(proxy)

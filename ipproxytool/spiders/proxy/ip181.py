@@ -11,7 +11,7 @@ class IpOneEightOneSpider(BaseSpider):
     def __init__(self, *a, **kw):
         super(IpOneEightOneSpider, self).__init__(*a, **kw)
 
-        self.urls = ['http://www.ip181.com/']
+        self.urls = ['http://www.ip181.com/daili/{}.html'.format(i) for i in range(1,5)]
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'Accept-Encoding': 'gzip, deflate',

@@ -14,7 +14,7 @@ class HttpBinSpider(Validator):
 
     def __init__(self, name=None, **kwargs):
         super(HttpBinSpider, self).__init__(name, **kwargs)
-        self.timeout = 5
+        self.timeout = 15
         self.urls = [
             'http://httpbin.org/get?show_env=1',
             'https://httpbin.org/get?show_env=1',
@@ -54,7 +54,8 @@ class HttpBinSpider(Validator):
             proxy = self.sql.get_proxy_with_id(table, id)
             if proxy == None:
                 continue
-
+            if int(proxy.anonymity) > 1:
+                continue
             for url in self.urls:
                 https = 'yes' if 'https' in url else 'no'
 
@@ -87,32 +88,33 @@ class HttpBinSpider(Validator):
             proxy.vali_count += 1
             self.log('proxy_info:%s' % (str(proxy)))
 
-            if proxy.https == 'no':
-                data = json.loads(response.body.decode())
-                print(data)
-                origin = data.get('origin')
-                headers = data.get('headers')
-                x_forwarded_for = headers.get('X-Forwarded-For', None)
-                x_real_ip = headers.get('X-Real-Ip', None)
-                via = headers.get('Via', None)
+            # if proxy.https == 'no':
+            data = json.loads(response.body.decode())
+            origin = data.get('origin')
+            headers = data.get('headers')
+            x_forwarded_for = headers.get('X-Forwarded-For', None)
+            x_real_ip = headers.get('X-Real-Ip', None)
+            via = headers.get('Via', None)
 
-                if self.origin_ip in origin:
-                    proxy.anonymity = 3
-                elif via is not None:
-                    proxy.anonymity = 2
-                elif x_forwarded_for is not None and x_real_ip is not None:
-                    proxy.anonymity = 1
-
-                if table == self.name:
-                    if proxy.speed > self.timeout:
-                        self.sql.del_proxy_with_id(table_name=table, id=proxy.id)
-                    else:
-                        self.sql.update_proxy(table_name=table, proxy=proxy)
+            if self.origin_ip in origin:
+                proxy.anonymity = 3
+            elif via is not None:
+                proxy.anonymity = 2
+            elif x_forwarded_for is not None and x_real_ip is not None:
+                proxy.anonymity = 1
+            if table == self.name:
+                if proxy.speed > self.timeout:
+                    self.sql.del_proxy_with_id(table_name=table, id=proxy.id)
                 else:
-                    if proxy.speed < self.timeout:
-                        self.sql.insert_proxy(table_name=table, proxy=proxy)
+                    self.sql.update_proxy(table_name=table, proxy=proxy)
             else:
-                self.sql.update_proxy(table_name=table, proxy=proxy)
+                if proxy.speed < self.timeout:
+                    self.sql.del_proxy_with_id(table_name=table, id=proxy.id)
+                    self.sql.insert_proxy(table_name=self.name, proxy=proxy)
+                else:
+                    self.sql.del_proxy_with_id(table_name=table, id=proxy.id)
+            # else:
+            #     self.sql.update_proxy(table_name=table, proxy=proxy)
 
         self.sql.commit()
 
@@ -120,12 +122,11 @@ class HttpBinSpider(Validator):
         request = failure.request
         self.log('error_parse value:%s url:%s meta:%s' % (failure.value, request.url, request.meta))
         https = request.meta.get('https')
-        if https == 'no':
-            table = request.meta.get('table')
-            proxy = request.meta.get('proxy_info')
+        table = request.meta.get('table')
+        proxy = request.meta.get('proxy_info')
 
-            if table == self.name:
-                self.sql.del_proxy_with_id(table_name=table, id=proxy.id)
-            else:
-                # TODO... 如果 ip 验证失败应该针对特定的错误类型，进行处理
-                pass
+        if table == self.name:
+            self.sql.del_proxy_with_id(table_name=table, id=proxy.id)
+        else:
+            # TODO... 如果 ip 验证失败应该针对特定的错误类型，进行处理
+            pass

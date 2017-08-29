@@ -73,13 +73,13 @@ class Proxy(object):
             Level 3 - Transparent Proxy: The web server can know you are using a proxy and it can also know your real
             IP.
         '''
-        anonymity = anonymity.strip()
-        if anonymity == u'高匿代理' or anonymity == u'高匿名' or anonymity == 'elite proxy' or \
-                        anonymity == u'超级匿名' or anonymity == u'High' or anonymity == u'高匿':
+        anonymity = str(anonymity).strip()
+        if anonymity == '高匿代理' or anonymity == '高匿名' or anonymity == 'elite proxy' or \
+                        anonymity == '超级匿名' or anonymity == 'High' or anonymity == '高匿' or anonymity == '1':
             return '1'
-        elif anonymity == u'匿名' or anonymity == 'anonymous' or anonymity == u'普通匿名' or anonymity == u'Medium':
+        elif anonymity == '匿名' or anonymity == 'anonymous' or anonymity == '普通匿名' or anonymity == 'Medium' or anonymity == '2':
             return '2'
-        elif anonymity == u'透明' or anonymity == 'transparent' or anonymity == u'No':
+        elif anonymity == '透明' or anonymity == 'transparent' or anonymity == 'No' or anonymity == '3':
             return '3'
         else:
             return '3'
