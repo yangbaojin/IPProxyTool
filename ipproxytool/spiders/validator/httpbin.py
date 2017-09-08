@@ -14,7 +14,7 @@ class HttpBinSpider(Validator):
 
     def __init__(self, name=None, **kwargs):
         super(HttpBinSpider, self).__init__(name, **kwargs)
-        self.timeout = 15
+        self.timeout = 30
         self.urls = [
             'http://httpbin.org/get?show_env=1',
             'https://httpbin.org/get?show_env=1',
@@ -46,15 +46,11 @@ class HttpBinSpider(Validator):
 
         ids = self.sql.get_proxy_ids(self.name)
         ids_free = self.sql.get_proxy_ids(config.free_ipproxy_table)
-
         for i in range(0, count + count_free):
             table = self.name if (i < count) else config.free_ipproxy_table
             id = ids[i] if i < count else ids_free[i - len(ids)]
-
             proxy = self.sql.get_proxy_with_id(table, id)
             if proxy == None:
-                continue
-            if int(proxy.anonymity) > 1:
                 continue
             for url in self.urls:
                 https = 'yes' if 'https' in url else 'no'
@@ -103,12 +99,12 @@ class HttpBinSpider(Validator):
             elif x_forwarded_for is not None and x_real_ip is not None:
                 proxy.anonymity = 1
             if table == self.name:
-                if proxy.speed > self.timeout:
+                if proxy.speed > self.timeout or proxy.anonymity == 3:
                     self.sql.del_proxy_with_id(table_name=table, id=proxy.id)
                 else:
                     self.sql.update_proxy(table_name=table, proxy=proxy)
             else:
-                if proxy.speed < self.timeout:
+                if proxy.speed < self.timeout and proxy.anonymity != 3:
                     self.sql.del_proxy_with_id(table_name=table, id=proxy.id)
                     self.sql.insert_proxy(table_name=self.name, proxy=proxy)
                 else:
@@ -124,9 +120,9 @@ class HttpBinSpider(Validator):
         https = request.meta.get('https')
         table = request.meta.get('table')
         proxy = request.meta.get('proxy_info')
-
-        if table == self.name:
-            self.sql.del_proxy_with_id(table_name=table, id=proxy.id)
-        else:
-            # TODO... 如果 ip 验证失败应该针对特定的错误类型，进行处理
-            pass
+        if https == 'no':
+            if table == self.name:
+                self.sql.del_proxy_with_id(table_name=table, id=proxy.id)
+            else:
+                # TODO... 如果 ip 验证失败应该针对特定的错误类型，进行处理
+                pass

@@ -41,9 +41,9 @@ if __name__ == '__main__':
 
     spiders = [
         XiCiDaiLiSpider,
-        # SixSixIpSpider,
-        # IpOneEightOneSpider,
-        # KuaiDaiLiSpider,  # 在访问前加了一个 js ，反爬
+        SixSixIpSpider,
+        IpOneEightOneSpider,
+        KuaiDaiLiSpider,  # 在访问前加了一个 js ，反爬
         # GatherproxySpider,
         # HidemySpider,
         # ProxylistplusSpider,
@@ -63,4 +63,4 @@ if __name__ == '__main__':
             scrapydo.run_spider(spider_cls = spider)
 
         utils.log('*******************run spider waiting...*******************')
-        time.sleep(1200)
+        time.sleep(1800)
